@@ -1,25 +1,32 @@
 package helpers;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
  * A class mimicking a processor
  */
 public class IntcodeProcessor {
-    private int[] code;
+    private ArrayList<Integer> memory;
 
-    public IntcodeProcessor() { }
-
-    public IntcodeProcessor(int[] code) {
-        this.code = code;
+    public IntcodeProcessor(ArrayList<Integer> memory) {
+        this.memory = memory;
     }
 
-    public void setCode(int[] newcode) {
-        this.code = newcode;
+    public IntcodeProcessor(Integer[] memory) {
+        this.memory = new ArrayList<Integer>(Arrays.asList(memory));
     }
 
-    public int[] getCode() {
-        return this.code;
+    public void setMemory(ArrayList<Integer> newcode) {
+        this.memory = newcode;
+    }
+
+    public void addToMemory(ArrayList<Integer> newMemory) {
+        this.memory.addAll(newMemory);
+    }
+
+    public ArrayList<Integer> getMemory() {
+        return this.memory;
     }
 
     public void run() throws Exception {
@@ -28,26 +35,25 @@ public class IntcodeProcessor {
         int location = 0;
         boolean finished = false;
         while (!finished) {
-            switch (this.code[index]) {
+            switch (this.memory.get(index)) {
                 case 1:
-                    result = this.code[this.code[index + 1]] + this.code[this.code[index + 2]];
-                    location = this.code[index + 3];
-                    this.code[location] = result;
+                    result = this.memory.get(this.memory.get(index + 1)) + this.memory.get(this.memory.get(index + 2));
+                    location = this.memory.get(index + 3);
+                    this.memory.set(location, result);
                     index += 4;
                     break;
                 case 2:
-                    result = this.code[this.code[index + 1]] * this.code[this.code[index + 2]];
-                    location = this.code[index + 3];
-                    this.code[location] = result;
+                    result = this.memory.get(this.memory.get(index + 1)) * this.memory.get(this.memory.get(index + 2));
+                    location = this.memory.get(index + 3);
+                    this.memory.set(location, result);
                     index += 4;
                     break;
                 case 99:
                     finished = true;
                     break;
                 default:
-                    throw new Exception("Operator " + this.code[index] + " is unknown.");
+                    throw new Exception("Operator " + this.memory.get(index) + " is unknown.");
             }
         }
-        System.out.println("Processor finished, memory: " + Arrays.toString(this.code));
     }
 }
