@@ -4,31 +4,59 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
- * A class mimicking a processor
+ * A class mimicking a processor running Intcode.
+ * @author Luctia
  */
 public class IntcodeProcessor {
+    /**
+     * Memory of the processor.
+     */
     private ArrayList<Integer> memory;
 
+    /**
+     * Create a new Intcode processor using an {@link ArrayList} representing memory.
+     * @param memory the processors memory
+     */
     public IntcodeProcessor(ArrayList<Integer> memory) {
         this.memory = memory;
     }
 
+    /**
+     * Create a new Intcode processor using an array of {@link Integer}s representing memory.
+     * @param memory the processors memory
+     */
     public IntcodeProcessor(Integer[] memory) {
         this.memory = new ArrayList<Integer>(Arrays.asList(memory));
     }
 
-    public void setMemory(ArrayList<Integer> newcode) {
-        this.memory = newcode;
+    /**
+     * Set the processors memory to the given memory.
+     * @param newMemory the new memory
+     */
+    public void setMemory(ArrayList<Integer> newMemory) {
+        this.memory = newMemory;
     }
 
+    /**
+     * Add more memory, given as an {@link ArrayList}.
+     * @param newMemory the memory to be added
+     */
     public void addToMemory(ArrayList<Integer> newMemory) {
         this.memory.addAll(newMemory);
     }
 
+    /**
+     * Get the memory as an {@link ArrayList} of {@link Integer}s.
+     * @return the processors memory
+     */
     public ArrayList<Integer> getMemory() {
         return this.memory;
     }
 
+    /**
+     * Run the processor.
+     * @throws Exception when an unknown operator is given
+     */
     public void run() throws Exception {
         int index = 0;
         int result = 0;
