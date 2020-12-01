@@ -9,5 +9,7 @@ public class Main {
         Day1 day1 = new Day1();
         System.out.println(day1.part1());
         System.out.println(day1.part2());
+
+        Day2 day2 = new Day2();
     }
 }
