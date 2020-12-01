@@ -64,23 +64,20 @@ public class IntcodeProcessor {
         boolean finished = false;
         while (!finished) {
             switch (this.memory.get(index)) {
-                case 1:
+                case 1 -> {
                     result = this.memory.get(this.memory.get(index + 1)) + this.memory.get(this.memory.get(index + 2));
                     location = this.memory.get(index + 3);
                     this.memory.set(location, result);
                     index += 4;
-                    break;
-                case 2:
+                }
+                case 2 -> {
                     result = this.memory.get(this.memory.get(index + 1)) * this.memory.get(this.memory.get(index + 2));
                     location = this.memory.get(index + 3);
                     this.memory.set(location, result);
                     index += 4;
-                    break;
-                case 99:
-                    finished = true;
-                    break;
-                default:
-                    throw new Exception("Operator " + this.memory.get(index) + " is unknown.");
+                }
+                case 99 -> finished = true;
+                default -> throw new Exception("Operator " + this.memory.get(index) + " is unknown.");
             }
         }
     }
