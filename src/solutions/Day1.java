@@ -1,7 +1,7 @@
 package solutions;
 
 import java.util.HashSet;
-import static helper.Helperfunctions.getData;
+import static helpers.Helperfunctions.getData;
 
 /**
  * Solutions to the exercise of day 1.
