@@ -14,7 +14,11 @@ public class Main {
 //        day2.part1();
 //        day2.part2();
 
-        Day4 day4 = new Day4();
-        day4.part1();
+//        Day4 day4 = new Day4();
+//        day4.part1();
+
+        Day5 day5 = new Day5();
+        day5.part1();
+        day5.part2();
     }
 }
