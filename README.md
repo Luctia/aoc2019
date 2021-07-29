@@ -8,7 +8,7 @@ Here you will find my Advent of Code implementations of 2019. For this year, I'v
 | Day 1         | :heavy_check_mark: :heavy_check_mark: |           |
 | Day 2         | :heavy_check_mark: :heavy_check_mark: |           |
 | Day 3         | :heavy_check_mark: :heavy_check_mark: |           |
-| Day 4         | :heavy_check_mark: :heavy_check_mark: | Some work could be done to improve readability on the first 20 or so lines.|
+| Day 4         | :heavy_check_mark: :heavy_check_mark: |           |
 | Day 5         | :heavy_check_mark: :heavy_check_mark: |           |
 | Day 6         | :heavy_check_mark: :heavy_check_mark: |           |
 | Day 7         | :heavy_check_mark: :x:                |           |
