@@ -38,8 +38,39 @@ public class Day8 {
         return (int) res;
     }
 
-    public int part2() {
-
-        return 1;
+    public void part2() {
+        String input = readInput();
+        int width = 25;
+        int height = 6;
+        List<List<Integer>> layers = new ArrayList<>();
+        for (int i = 0; i < input.length(); i+= width*height) {
+            String layerString = input.substring(i, i + width*height);
+            List<Integer> layer = new ArrayList<>();
+            for (int j = 0; j < layerString.length(); j++) {
+                layer.add(Integer.parseInt(layerString.substring(j, j + 1)));
+            }
+            layers.add(layer);
+        }
+        List<Integer> result = new ArrayList<>();
+        for (int i = 0; i < width * height; i++) {
+            for (List<Integer> layer : layers) {
+                if (layer.get(i) == 0) {
+                    result.add(0);
+                    break;
+                }
+                if (layer.get(i) == 1) {
+                    result.add(1);
+                    break;
+                }
+            }
+        }
+        for (int i = 0; i < height; i++) {
+            System.out.println(result
+                    .subList(i * width, i * width + width)
+                    .toString()
+                    .replaceAll("[\\[\\]]", "")
+                    .replaceAll(",", "")
+                    .replaceAll("0", " "));
+        }
     }
 }
