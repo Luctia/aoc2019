@@ -7,8 +7,8 @@ import java.util.HashSet;
 import java.util.Scanner;
 
 public class Helperfunctions {
-    public static HashSet<Integer> getData(int day) {
-        HashSet<Integer> res = new HashSet<>();
+    public static ArrayList<Integer> getData(int day) {
+        ArrayList<Integer> res = new ArrayList<>();
         try {
             File data = new File("src/data/day" + day + ".txt");
             Scanner reader = new Scanner(data);

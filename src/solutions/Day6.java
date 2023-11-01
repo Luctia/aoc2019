@@ -8,12 +8,12 @@ import java.util.HashMap;
 import java.util.Scanner;
 
 public class Day6 {
-    public void part1() {
+    public int part1() {
         HashMap<String, String> childrenToParents = getHashMap();
-        System.out.println("Solution to part 1: " + calculateOrbitCount(childrenToParents));
+        return calculateOrbitCount(childrenToParents);
     }
 
-    public void part2() {
+    public int part2() {
         HashMap<String, String> childrenToParents = getHashMap();
         ArrayList<String> meToRoot = getLinkToRoot(childrenToParents, "COM", "YOU");
         ArrayList<String> santaToRoot = getLinkToRoot(childrenToParents, "COM", "SAN");
@@ -27,7 +27,7 @@ public class Day6 {
                 break;
             }
         }
-        System.out.println("Solution to part 2: " + res);
+        return res;
     }
 
     private HashMap<String, String> getHashMap() {
