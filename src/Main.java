@@ -34,5 +34,6 @@ public class Main {
 
         Day7 day7 = new Day7();
         day7.part1();
+        day7.part2();
     }
 }

@@ -7,7 +7,7 @@ public class Day5 {
 
     public void part1() {
         IntcodeProcessor processor = new IntcodeProcessor(input);
-        processor.setInput(1);
+        processor.setInput(new int[]{1});
         try {
             processor.run();
             System.out.println(processor.getOutput());
@@ -18,7 +18,7 @@ public class Day5 {
 
     public void part2() {
         IntcodeProcessor processor = new IntcodeProcessor(input);
-        processor.setInput(5);
+        processor.setInput(new int[]{5});
         try {
             processor.run();
             System.out.println(processor.getOutput());

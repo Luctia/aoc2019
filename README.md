@@ -11,7 +11,7 @@ Here you will find my Advent of Code implementations of 2019. For this year, I'v
 | Day 4         | :heavy_check_mark: :heavy_check_mark: |           |
 | Day 5         | :heavy_check_mark: :heavy_check_mark: |           |
 | Day 6         | :heavy_check_mark: :heavy_check_mark: |           |
-| Day 7         | :heavy_check_mark: :x:                |           |
+| Day 7         | :heavy_check_mark: :heavy_check_mark: |           |
 | Day 8         | :x: :x:                               |           |
 | Day 9         | :x: :x:                               |           |
 | Day 10        | :x: :x:                               |           |

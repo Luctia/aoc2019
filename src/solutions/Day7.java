@@ -56,4 +56,66 @@ public class Day7 {
         }
         System.out.println(max);
     }
+
+    public void part2() {
+        int max = 0;
+        ArrayList<Integer> x = new ArrayList<Integer>() {
+            {
+                add(5);
+                add(6);
+                add(7);
+                add(8);
+                add(9);
+            }
+        };
+        ArrayList<ArrayList<Integer>> possibilities = Helperfunctions.combinationUtil(x);
+        for (ArrayList<Integer> possibility : possibilities) {
+            IntcodeProcessor ampa = new IntcodeProcessor(getCode());
+            IntcodeProcessor ampb = new IntcodeProcessor(getCode());
+            IntcodeProcessor ampc = new IntcodeProcessor(getCode());
+            IntcodeProcessor ampd = new IntcodeProcessor(getCode());
+            IntcodeProcessor ampe = new IntcodeProcessor(getCode());
+            ampa.setInput(possibility.get(0), 0);
+            ampb.setInput(possibility.get(1));
+            ampc.setInput(possibility.get(2));
+            ampd.setInput(possibility.get(3));
+            ampe.setInput(possibility.get(4));
+            ampa.run();
+            ampb.run();
+            ampc.run();
+            ampd.run();
+            ampe.run();
+            while (!ampe.hasHalted()) {
+                if (!ampe.getOutput().isEmpty()) {
+                    ampa.addInput(ampe.takeOutput());
+                    ampa.run();
+                    System.out.println("a started");
+                }
+                if (!ampa.getOutput().isEmpty()) {
+                    ampb.addInput(ampa.takeOutput());
+                    ampb.run();
+                    System.out.println("b started");
+                }
+                if (!ampb.getOutput().isEmpty()) {
+                    ampc.addInput(ampb.takeOutput());
+                    ampc.run();
+                    System.out.println("c started");
+                }
+                if (!ampc.getOutput().isEmpty()) {
+                    ampd.addInput(ampc.takeOutput());
+                    ampd.run();
+                    System.out.println("d started");
+                }
+                if (!ampd.getOutput().isEmpty()) {
+                    ampe.addInput(ampd.takeOutput());
+                    ampe.run();
+                    System.out.println("e started");
+                }
+            }
+            if (ampe.getOutput().get(0) > max) {
+                max = ampe.getOutput().get(0);
+            }
+        }
+        System.out.println(max);
+    }
 }

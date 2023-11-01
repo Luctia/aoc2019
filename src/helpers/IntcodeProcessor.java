@@ -14,7 +14,9 @@ public class IntcodeProcessor {
      */
     private ArrayList<Integer> memory;
     private ArrayList<Integer> output = new ArrayList<>();
-    private Stack<Integer> input;
+    private ArrayList<Integer> input;
+    private int pointer;
+    private boolean halted;
 
     /**
      * Create a new Intcode processor using an {@link ArrayList} representing memory.
@@ -22,6 +24,8 @@ public class IntcodeProcessor {
      */
     public IntcodeProcessor(ArrayList<Integer> memory) {
         this.memory = memory;
+        this.pointer = 0;
+        this.halted = false;
     }
 
     /**
@@ -30,6 +34,8 @@ public class IntcodeProcessor {
      */
     public IntcodeProcessor(Integer[] memory) {
         this.memory = new ArrayList<Integer>(Arrays.asList(memory));
+        this.pointer = 0;
+        this.halted = false;
     }
 
     /**
@@ -61,12 +67,10 @@ public class IntcodeProcessor {
      * @throws Exception when an unknown operator is given
      */
     public void run() {
-        int index = 0;
         int result;
         int location;
-        boolean finished = false;
-        while (!finished) {
-            int instruction = this.memory.get(index);
+        while (!this.halted) {
+            int instruction = this.memory.get(this.pointer);
             int paramMode1 = (instruction / 100) % 10;
             int paramMode2 = (instruction / 1000) % 10;
             int paramMode3 = (instruction / 10000) % 10;
@@ -74,51 +78,55 @@ public class IntcodeProcessor {
             try {
                 switch (opcode) {
                     case 1 -> {
-                        result = getValue(paramMode1, this.memory.get(index + 1)) + getValue(paramMode2, this.memory.get(index + 2));
-                        location = this.memory.get(index + 3);
+                        result = getValue(paramMode1, this.memory.get(this.pointer + 1)) + getValue(paramMode2, this.memory.get(this.pointer + 2));
+                        location = this.memory.get(this.pointer + 3);
                         this.memory.set(location, result);
-                        index += 4;
+                        this.pointer += 4;
                     }
                     case 2 -> {
-                        result = getValue(paramMode1, this.memory.get(index + 1)) * getValue(paramMode2, this.memory.get(index + 2));
-                        location = this.memory.get(index + 3);
+                        result = getValue(paramMode1, this.memory.get(this.pointer + 1)) * getValue(paramMode2, this.memory.get(this.pointer + 2));
+                        location = this.memory.get(this.pointer + 3);
                         this.memory.set(location, result);
-                        index += 4;
+                        this.pointer += 4;
                     }
                     case 3 -> {
-                        this.memory.set(this.memory.get(index + 1), this.input.pop());
-                        index += 2;
+                        try {
+                            this.memory.set(this.memory.get(this.pointer + 1), this.input.remove(0));
+                        } catch (IndexOutOfBoundsException e) {
+                            return;
+                        }
+                        this.pointer += 2;
                     }
                     case 4 -> {
-                        this.output.add(getValue(paramMode1, this.memory.get(index + 1)));
-                        index += 2;
+                        this.output.add(getValue(paramMode1, this.memory.get(this.pointer + 1)));
+                        this.pointer += 2;
                     }
                     case 5 -> {
-                        int value = getValue(paramMode1, this.memory.get(index + 1));
-                        int jumpTo = getValue(paramMode2, this.memory.get(index + 2));
-                        index = (value != 0) ? jumpTo : index + 3;
+                        int value = getValue(paramMode1, this.memory.get(this.pointer + 1));
+                        int jumpTo = getValue(paramMode2, this.memory.get(this.pointer + 2));
+                        this.pointer = (value != 0) ? jumpTo : this.pointer + 3;
                     }
                     case 6 -> {
-                        int value = getValue(paramMode1, this.memory.get(index + 1));
-                        int jumpTo = getValue(paramMode2, this.memory.get(index + 2));
-                        index = (value == 0) ? jumpTo : index + 3;
+                        int value = getValue(paramMode1, this.memory.get(this.pointer + 1));
+                        int jumpTo = getValue(paramMode2, this.memory.get(this.pointer + 2));
+                        this.pointer = (value == 0) ? jumpTo : this.pointer + 3;
                     }
                     case 7 -> {
-                        int val1 = getValue(paramMode1, this.memory.get(index + 1));
-                        int val2 = getValue(paramMode2, this.memory.get(index + 2));
-                        int val3 = this.memory.get(index + 3);
+                        int val1 = getValue(paramMode1, this.memory.get(this.pointer + 1));
+                        int val2 = getValue(paramMode2, this.memory.get(this.pointer + 2));
+                        int val3 = this.memory.get(this.pointer + 3);
                         this.memory.set(val3, val1 < val2 ? 1 : 0);
-                        index += 4;
+                        this.pointer += 4;
                     }
                     case 8 -> {
-                        int val1 = getValue(paramMode1, this.memory.get(index + 1));
-                        int val2 = getValue(paramMode2, this.memory.get(index + 2));
-                        int val3 = this.memory.get(index + 3);
+                        int val1 = getValue(paramMode1, this.memory.get(this.pointer + 1));
+                        int val2 = getValue(paramMode2, this.memory.get(this.pointer + 2));
+                        int val3 = this.memory.get(this.pointer + 3);
                         this.memory.set(val3, val1 == val2 ? 1 : 0);
-                        index += 4;
+                        this.pointer += 4;
                     }
-                    case 99 -> finished = true;
-                    default -> throw new IntcodeException("Instruction " + this.memory.get(index) + " is unknown.");
+                    case 99 -> this.halted = true;
+                    default -> throw new IntcodeException("Instruction " + this.memory.get(this.pointer) + " is unknown.");
                 }
             } catch (Exception e) {
                 System.err.println(e);
@@ -142,11 +150,23 @@ public class IntcodeProcessor {
         return output;
     }
 
+    public Integer takeOutput() {
+        return this.output.remove(0);
+    }
+
     public void setInput(int... input) {
-        this.input = new Stack<>();
-        for (int i = input.length - 1; i >= 0; i--) {
-            this.input.push(input[i]);
+        this.input = new ArrayList<>();
+        for (int i : input) {
+            this.input.add(i);
         }
+    }
+
+    public void addInput(int i) {
+        this.input.add(i);
+    }
+
+    public boolean hasHalted() {
+        return this.halted;
     }
 
     static class IntcodeException extends Exception {
