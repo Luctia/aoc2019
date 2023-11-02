@@ -17,6 +17,7 @@ public class IntcodeProcessor {
     private ArrayList<Long> input;
     private long pointer;
     private boolean halted;
+    private long relativeBase;
 
     /**
      * Create a new Intcode processor using an {@link ArrayList} representing memory.
@@ -27,8 +28,10 @@ public class IntcodeProcessor {
         for (int i = 0; i < memory.size(); i++) {
             this.memory.setAtAddress(i, memory.get(i));
         }
+        this.input = new ArrayList<>();
         this.pointer = 0;
         this.halted = false;
+        this.relativeBase = 0;
     }
 
     /**
@@ -40,8 +43,25 @@ public class IntcodeProcessor {
         for (int i = 0; i < memory.length; i++) {
             this.memory.setAtAddress(i, memory[i]);
         }
+        this.input = new ArrayList<>();
         this.pointer = 0;
         this.halted = false;
+        this.relativeBase = 0;
+    }
+
+    /**
+     * Create a new Intcode processor using an array of {@link Long}s representing memory.
+     * @param memory the processors memory
+     */
+    public IntcodeProcessor(Long[] memory) {
+        this.memory = new LargeMemory();
+        for (int i = 0; i < memory.length; i++) {
+            this.memory.setAtAddress(i, memory[i]);
+        }
+        this.input = new ArrayList<>();
+        this.pointer = 0;
+        this.halted = false;
+        this.relativeBase = 0;
     }
 
     /**
@@ -82,26 +102,29 @@ public class IntcodeProcessor {
             try {
                 switch (opcode) {
                     case 1 -> {
+                        // Addition
                         long result = getValue(paramMode1, this.memory.get(this.pointer + 1)) + getValue(paramMode2, this.memory.get(this.pointer + 2));
-                        long location = this.memory.get(this.pointer + 3);
-                        this.memory.setAtAddress(location, result);
+                        this.setValue(paramMode3, this.pointer + 3, result);
                         this.pointer += 4;
                     }
                     case 2 -> {
                         long result = getValue(paramMode1, this.memory.get(this.pointer + 1)) * getValue(paramMode2, this.memory.get(this.pointer + 2));
-                        long location = this.memory.get(this.pointer + 3);
-                        this.memory.setAtAddress(location, result);
+                        this.setValue(paramMode3, this.pointer + 3, result);
                         this.pointer += 4;
                     }
                     case 3 -> {
+                        // Get from input
                         try {
-                            this.memory.setAtAddress(this.memory.get(this.pointer + 1), this.input.remove(0));
+                            this.setValue(paramMode1, this.pointer + 1, this.input.remove(0));
+                            this.pointer += 2;
                         } catch (IndexOutOfBoundsException e) {
+                            // No input has been found. Terminate program so that it may be restarted later, with the
+                            //  pointer on the take-from-input instruction.
                             return;
                         }
-                        this.pointer += 2;
                     }
                     case 4 -> {
+                        // Add to output
                         this.output.add(getValue(paramMode1, this.memory.get(this.pointer + 1)));
                         this.pointer += 2;
                     }
@@ -118,27 +141,31 @@ public class IntcodeProcessor {
                     case 7 -> {
                         long val1 = getValue(paramMode1, this.memory.get(this.pointer + 1));
                         long val2 = getValue(paramMode2, this.memory.get(this.pointer + 2));
-                        long val3 = this.memory.get(this.pointer + 3);
-                        this.memory.setAtAddress(val3, val1 < val2 ? 1 : 0);
+                        this.setValue(paramMode3, this.pointer + 3, val1 < val2 ? 1 : 0);
                         this.pointer += 4;
                     }
                     case 8 -> {
                         long val1 = getValue(paramMode1, this.memory.get(this.pointer + 1));
                         long val2 = getValue(paramMode2, this.memory.get(this.pointer + 2));
-                        long val3 = this.memory.get(this.pointer + 3);
-                        this.memory.setAtAddress(val3, val1 == val2 ? 1 : 0);
+                        this.setValue(paramMode3, this.pointer + 3, val1 == val2 ? 1 : 0);
                         this.pointer += 4;
                     }
+                    case 9 -> {
+                        // Adjust relative base
+                        this.relativeBase += getValue(paramMode1, this.memory.get(this.pointer + 1));
+                        this.pointer += 2;
+                    }
                     case 99 -> this.halted = true;
-                    default -> throw new IntcodeException("Instruction " + this.memory.get(this.pointer) + " is unknown.");
+                    default -> throw new IntcodeProcessor.IntcodeException("Instruction " + instruction + " is unknown.");
                 }
             } catch (Exception e) {
                 System.err.println(e);
+                return;
             }
         }
     }
 
-    private long getValue(int mode, long parameter) throws Exception {
+    private long getValue(int mode, long parameter) throws IntcodeProcessor.IntcodeException {
         switch (mode) {
             case 0 -> {
                 return this.memory.get(parameter);
@@ -146,7 +173,25 @@ public class IntcodeProcessor {
             case 1 -> {
                 return parameter;
             }
-            default -> throw new IntcodeException("Parameter mode " + mode + " does not exist.");
+            case 2 -> {
+                return this.memory.get(parameter + this.relativeBase);
+            }
+            default -> throw new IntcodeProcessor.IntcodeException("Parameter mode " + mode + " does not exist.");
+        }
+    }
+
+    private void setValue(int mode, long parameter, long value) throws IntcodeProcessor.IntcodeException {
+        switch (mode) {
+            case 0 -> {
+                this.memory.setAtAddress(this.memory.get(parameter), value);
+            }
+            case 1 -> {
+                throw new IntcodeProcessor.IntcodeException("Parameter mode 1 is not allowed for writing.");
+            }
+            case 2 -> {
+                this.memory.setAtAddress(this.memory.get(parameter) + this.relativeBase, value);
+            }
+            default -> throw new IntcodeProcessor.IntcodeException("Parameter mode " + mode + " does not exist.");
         }
     }
 

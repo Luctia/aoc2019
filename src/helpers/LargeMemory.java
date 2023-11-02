@@ -12,7 +12,11 @@ public class LargeMemory {
     }
 
     public long get(long address) {
-        return this.memory.get(address);
+        if (this.memory.get(address) != null) {
+            return this.memory.get(address);
+        } else {
+            return 0;
+        }
     }
 
     public void setAtAddress(long address, long value) {

@@ -35,12 +35,12 @@ public class VerifyResults {
 //        assertEquals(1142, day.part2());
 //    }
 
-//    @Test
-//    public void day5Test() {
-//        Day5 day = new Day5();
-//        assertEquals(16348437, day.part1());
-//        assertEquals(6959377, day.part2());
-//    }
+    @Test
+    public void day5Test() {
+        Day5 day = new Day5();
+        assertEquals(16348437, day.part1());
+        assertEquals(6959377, day.part2());
+    }
 
     @Test
     public void day6Test() {
@@ -60,5 +60,12 @@ public class VerifyResults {
     public void day8Test() {
         Day8 day = new Day8();
         assertEquals(2125, day.part1());
+    }
+
+    @Test
+    public void day9Test() {
+        Day9 day = new Day9();
+        assertEquals(3742852857L, day.part1());
+        assertEquals(73439, day.part2());
     }
 }
