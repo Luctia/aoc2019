@@ -22,8 +22,8 @@ public class Day7 {
         return null;
     }
 
-    public int part1() {
-        int max = 0;
+    public long part1() {
+        long max = 0;
         ArrayList<Integer> x = new ArrayList<Integer>() {
             {
                 add(0);
@@ -57,8 +57,8 @@ public class Day7 {
         return max;
     }
 
-    public int part2() {
-        int max = 0;
+    public long part2() {
+        long max = 0;
         ArrayList<Integer> x = new ArrayList<Integer>() {
             {
                 add(5);

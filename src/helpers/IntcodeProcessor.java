@@ -12,10 +12,10 @@ public class IntcodeProcessor {
     /**
      * Memory of the processor.
      */
-    private ArrayList<Integer> memory;
-    private ArrayList<Integer> output = new ArrayList<>();
-    private ArrayList<Integer> input;
-    private int pointer;
+    private LargeMemory memory;
+    private ArrayList<Long> output = new ArrayList<>();
+    private ArrayList<Long> input;
+    private long pointer;
     private boolean halted;
 
     /**
@@ -23,7 +23,10 @@ public class IntcodeProcessor {
      * @param memory the processors memory
      */
     public IntcodeProcessor(ArrayList<Integer> memory) {
-        this.memory = memory;
+        this.memory = new LargeMemory();
+        for (int i = 0; i < memory.size(); i++) {
+            this.memory.setAtAddress(i, memory.get(i));
+        }
         this.pointer = 0;
         this.halted = false;
     }
@@ -33,7 +36,10 @@ public class IntcodeProcessor {
      * @param memory the processors memory
      */
     public IntcodeProcessor(Integer[] memory) {
-        this.memory = new ArrayList<Integer>(Arrays.asList(memory));
+        this.memory = new LargeMemory();
+        for (int i = 0; i < memory.length; i++) {
+            this.memory.setAtAddress(i, memory[i]);
+        }
         this.pointer = 0;
         this.halted = false;
     }
@@ -42,7 +48,7 @@ public class IntcodeProcessor {
      * Set the processors memory to the given memory.
      * @param newMemory the new memory
      */
-    public void setMemory(ArrayList<Integer> newMemory) {
+    public void setMemory(LargeMemory newMemory) {
         this.memory = newMemory;
     }
 
@@ -50,7 +56,7 @@ public class IntcodeProcessor {
      * Add more memory, given as an {@link ArrayList}.
      * @param newMemory the memory to be added
      */
-    public void addToMemory(ArrayList<Integer> newMemory) {
+    public void addToMemory(ArrayList<Long> newMemory) {
         this.memory.addAll(newMemory);
     }
 
@@ -58,7 +64,7 @@ public class IntcodeProcessor {
      * Get the memory as an {@link ArrayList} of {@link Integer}s.
      * @return the processors memory
      */
-    public ArrayList<Integer> getMemory() {
+    public LargeMemory getMemory() {
         return this.memory;
     }
 
@@ -67,10 +73,8 @@ public class IntcodeProcessor {
      * @throws Exception when an unknown operator is given
      */
     public void run() {
-        int result;
-        int location;
         while (!this.halted) {
-            int instruction = this.memory.get(this.pointer);
+            int instruction = (int) this.memory.get(this.pointer);
             int paramMode1 = (instruction / 100) % 10;
             int paramMode2 = (instruction / 1000) % 10;
             int paramMode3 = (instruction / 10000) % 10;
@@ -78,20 +82,20 @@ public class IntcodeProcessor {
             try {
                 switch (opcode) {
                     case 1 -> {
-                        result = getValue(paramMode1, this.memory.get(this.pointer + 1)) + getValue(paramMode2, this.memory.get(this.pointer + 2));
-                        location = this.memory.get(this.pointer + 3);
-                        this.memory.set(location, result);
+                        long result = getValue(paramMode1, this.memory.get(this.pointer + 1)) + getValue(paramMode2, this.memory.get(this.pointer + 2));
+                        long location = this.memory.get(this.pointer + 3);
+                        this.memory.setAtAddress(location, result);
                         this.pointer += 4;
                     }
                     case 2 -> {
-                        result = getValue(paramMode1, this.memory.get(this.pointer + 1)) * getValue(paramMode2, this.memory.get(this.pointer + 2));
-                        location = this.memory.get(this.pointer + 3);
-                        this.memory.set(location, result);
+                        long result = getValue(paramMode1, this.memory.get(this.pointer + 1)) * getValue(paramMode2, this.memory.get(this.pointer + 2));
+                        long location = this.memory.get(this.pointer + 3);
+                        this.memory.setAtAddress(location, result);
                         this.pointer += 4;
                     }
                     case 3 -> {
                         try {
-                            this.memory.set(this.memory.get(this.pointer + 1), this.input.remove(0));
+                            this.memory.setAtAddress(this.memory.get(this.pointer + 1), this.input.remove(0));
                         } catch (IndexOutOfBoundsException e) {
                             return;
                         }
@@ -102,27 +106,27 @@ public class IntcodeProcessor {
                         this.pointer += 2;
                     }
                     case 5 -> {
-                        int value = getValue(paramMode1, this.memory.get(this.pointer + 1));
-                        int jumpTo = getValue(paramMode2, this.memory.get(this.pointer + 2));
+                        long value = getValue(paramMode1, this.memory.get(this.pointer + 1));
+                        long jumpTo = getValue(paramMode2, this.memory.get(this.pointer + 2));
                         this.pointer = (value != 0) ? jumpTo : this.pointer + 3;
                     }
                     case 6 -> {
-                        int value = getValue(paramMode1, this.memory.get(this.pointer + 1));
-                        int jumpTo = getValue(paramMode2, this.memory.get(this.pointer + 2));
+                        long value = getValue(paramMode1, this.memory.get(this.pointer + 1));
+                        long jumpTo = getValue(paramMode2, this.memory.get(this.pointer + 2));
                         this.pointer = (value == 0) ? jumpTo : this.pointer + 3;
                     }
                     case 7 -> {
-                        int val1 = getValue(paramMode1, this.memory.get(this.pointer + 1));
-                        int val2 = getValue(paramMode2, this.memory.get(this.pointer + 2));
-                        int val3 = this.memory.get(this.pointer + 3);
-                        this.memory.set(val3, val1 < val2 ? 1 : 0);
+                        long val1 = getValue(paramMode1, this.memory.get(this.pointer + 1));
+                        long val2 = getValue(paramMode2, this.memory.get(this.pointer + 2));
+                        long val3 = this.memory.get(this.pointer + 3);
+                        this.memory.setAtAddress(val3, val1 < val2 ? 1 : 0);
                         this.pointer += 4;
                     }
                     case 8 -> {
-                        int val1 = getValue(paramMode1, this.memory.get(this.pointer + 1));
-                        int val2 = getValue(paramMode2, this.memory.get(this.pointer + 2));
-                        int val3 = this.memory.get(this.pointer + 3);
-                        this.memory.set(val3, val1 == val2 ? 1 : 0);
+                        long val1 = getValue(paramMode1, this.memory.get(this.pointer + 1));
+                        long val2 = getValue(paramMode2, this.memory.get(this.pointer + 2));
+                        long val3 = this.memory.get(this.pointer + 3);
+                        this.memory.setAtAddress(val3, val1 == val2 ? 1 : 0);
                         this.pointer += 4;
                     }
                     case 99 -> this.halted = true;
@@ -134,7 +138,7 @@ public class IntcodeProcessor {
         }
     }
 
-    private int getValue(int mode, int parameter) throws Exception {
+    private long getValue(int mode, long parameter) throws Exception {
         switch (mode) {
             case 0 -> {
                 return this.memory.get(parameter);
@@ -146,22 +150,22 @@ public class IntcodeProcessor {
         }
     }
 
-    public ArrayList<Integer> getOutput() {
+    public ArrayList<Long> getOutput() {
         return output;
     }
 
-    public Integer takeOutput() {
+    public long takeOutput() {
         return this.output.remove(0);
     }
 
-    public void setInput(int... input) {
+    public void setInput(long... input) {
         this.input = new ArrayList<>();
-        for (int i : input) {
+        for (long i : input) {
             this.input.add(i);
         }
     }
 
-    public void addInput(int i) {
+    public void addInput(long i) {
         this.input.add(i);
     }
 
