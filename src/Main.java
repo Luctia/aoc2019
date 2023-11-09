@@ -43,5 +43,8 @@ public class Main {
         Day9 day9 = new Day9();
         System.out.println(day9.part1());
         System.out.println(day9.part2());
+
+        Day10 day10 = new Day10();
+        System.out.println(day10.part1());
     }
 }
