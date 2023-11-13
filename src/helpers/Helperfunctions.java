@@ -2,9 +2,7 @@ package helpers;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Scanner;
+import java.util.*;
 
 public class Helperfunctions {
     public static ArrayList<Integer> getData(int day) {
@@ -41,6 +39,37 @@ public class Helperfunctions {
             }
         }
 
+        return res;
+    }
+
+    public static Long lcm(List<Long> numbers) {
+        List<Long> factorList = new ArrayList<>();
+        for (Long number : numbers) {
+            List<Long> numberFactors = primeFactorization(number);
+            for (Long factor : numberFactors) {
+                long occursExisting = factorList.stream().filter(l -> Objects.equals(l, factor)).count();
+                long occursNew = numberFactors.stream().filter(l -> Objects.equals(l, factor)).count();
+                if (occursNew > occursExisting) {
+                    for (int i = 0; i < occursNew - occursExisting; i++) {
+                        factorList.add(factor);
+                    }
+                }
+            }
+        }
+        return factorList.stream().reduce(1L, (a, b) -> a * b);
+    }
+
+    public static List<Long> primeFactorization(Long number) {
+        List<Long> res = new ArrayList<>();
+        for (long i = 2; i < number; i++) {
+            while (Math.floorMod(number, i) == 0) {
+                res.add(i);
+                number = number / i;
+            }
+        }
+        if (number > 2) {
+            res.add(number);
+        }
         return res;
     }
 }
