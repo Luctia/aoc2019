@@ -2,7 +2,8 @@ package solutions;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+
+import static helpers.Helperfunctions.lcm;
 
 public class Day12 {
     public int part1() {
@@ -28,44 +29,27 @@ public class Day12 {
     public Long part2() {
         List<Long> moonPeriods = new ArrayList<>();
 
-        for (int i = 0; i < 4; i++) {
-            MoonSystem moonSystem = new MoonSystem();
-            moonSystem.addMoon(3, 2, -6);
-            moonSystem.addMoon(-13, 18, 10);
-            moonSystem.addMoon(-8, -1, 13);
-            moonSystem.addMoon(5, 10, 4);
-            System.out.println("Getting moon period");
-            moonPeriods.add(moonSystem.getPeriod(moonSystem.moons.get(i)));
-        }
+        MoonSystem moonSystem = new MoonSystem();
+        moonSystem.addMoon(3, 2, -6);
+        moonSystem.addMoon(-13, 18, 10);
+        moonSystem.addMoon(-8, -1, 13);
+        moonSystem.addMoon(5, 10, 4);
 
-        List<Long> test = new ArrayList<>();
-        test.add(12L);
-        test.add(75L);
-        test.add(15L);
-        System.out.println(lcm(test));
+        // Test
+//        MoonSystem moonSystem = new MoonSystem();
+//        moonSystem.addMoon(-8, -10, 0);
+//        moonSystem.addMoon(5, 5, 10);
+//        moonSystem.addMoon(2, -7, 3);
+//        moonSystem.addMoon(9, -8, -3);
+
+        moonPeriods.add(moonSystem.getPeriodX());
+        moonPeriods.add(moonSystem.getPeriodY());
+        moonPeriods.add(moonSystem.getPeriodZ());
 
         return lcm(moonPeriods);
     }
 
-    public static Long lcm(List<Long> numbers) {
-        Long lcm = Math.abs(numbers.get(0));
-        for (int i = 1; i < numbers.size() - 1; i++) {
-            Long number = numbers.get(i);
-            if (lcm == 0 || number == 0) {
-                return 0L;
-            }
-            Long absNumber2 = Math.abs(number);
-            Long absHigherNumber = Math.max(lcm, absNumber2);
-            Long absLowerNumber = Math.min(lcm, absNumber2);
-            lcm = absHigherNumber;
-            while (lcm % absLowerNumber != 0) {
-                lcm += absHigherNumber;
-            }
-        }
-        return lcm;
-    }
-
-    private class MoonSystem {
+    private static class MoonSystem {
         private final List<Moon> moons;
 
         public MoonSystem() {
@@ -77,6 +61,7 @@ public class Day12 {
         }
 
         public void moveMoons() {
+            // Adjust velocities
             for (int i = 0; i < moons.size(); i++) {
                 for (int j = i + 1; j < moons.size(); j++) {
                     Moon a = this.moons.get(i);
@@ -85,8 +70,9 @@ public class Day12 {
                     b.adjustVelocity(a);
                 }
             }
-            for (int i = 0; i < moons.size(); i++) {
-                this.moons.get(i).moveMoon();
+            // Adjust coordinates
+            for (Moon moon : moons) {
+                moon.moveMoon();
             }
         }
 
@@ -97,37 +83,47 @@ public class Day12 {
                     .reduce(0, Integer::sum);
         }
 
-        public Long getPeriod(Moon moon) {
-            Long period = 0L;
-            int moonIndex = this.moons.indexOf(moon);
-            List<Integer> seen = new ArrayList<>();
-            boolean duplicateFound = false;
-            while (!duplicateFound) {
-                this.moveMoons();
-                if (seen.contains(this.moons.get(moonIndex).hashCode())) {
-                    return period - seen.indexOf(this.moons.get(moonIndex).hashCode());
-                }
+        public Long getPeriodX() {
+            String initialState = this.moons.stream().map(m -> m.x + " " + m.velX + " ").reduce("", String::concat);
+            long period = 0;
+            while (true) {
+                moveMoons();
                 period++;
-                seen.add(this.moons.get(moonIndex).hashCode());
+                String representation = this.moons.stream().map(m -> m.x + " " + m.velX + " ").reduce("", String::concat);
+                if (representation.equals(initialState)) {
+                    return period;
+                }
             }
-            return -1L;
         }
 
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            MoonSystem moonSystem = (MoonSystem) o;
-            return Objects.equals(moons, moonSystem.moons);
+        public Long getPeriodY() {
+            String initialState = this.moons.stream().map(m -> m.y + " " + m.velY + " ").reduce("", String::concat);
+            long period = 0;
+            while (true) {
+                moveMoons();
+                period++;
+                String representation = this.moons.stream().map(m -> m.y + " " + m.velY + " ").reduce("", String::concat);
+                if (representation.equals(initialState)) {
+                    return period;
+                }
+            }
         }
 
-        @Override
-        public int hashCode() {
-            return Objects.hash(moons);
+        public Long getPeriodZ() {
+            String initialState = this.moons.stream().map(m -> m.z + " " + m.velZ + " ").reduce("", String::concat);
+            long period = 0;
+            while (true) {
+                moveMoons();
+                period++;
+                String representation = this.moons.stream().map(m -> m.z + " " + m.velZ + " ").reduce("", String::concat);
+                if (representation.equals(initialState)) {
+                    return period;
+                }
+            }
         }
     }
 
-    private class Moon {
+    private static class Moon {
         private int x, y, z, velX, velY, velZ;
 
         public Moon(int x, int y, int z) {
@@ -167,18 +163,6 @@ public class Day12 {
             this.x = this.x + this.velX;
             this.y = this.y + this.velY;
             this.z = this.z + this.velZ;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (o == null || getClass() != o.getClass()) return false;
-            Moon moon = (Moon) o;
-            return x == moon.x && y == moon.y && z == moon.z && velX == moon.velX && velY == moon.velY && velZ == moon.velZ;
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(x, y, z, velX, velY, velZ);
         }
     }
 }
