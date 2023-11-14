@@ -1,7 +1,10 @@
 package helpers;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Scanner;
 import java.util.Stack;
 
 /**
@@ -54,6 +57,31 @@ public class IntcodeProcessor {
      * @param memory the processors memory
      */
     public IntcodeProcessor(Long[] memory) {
+        this.memory = new LargeMemory();
+        for (int i = 0; i < memory.length; i++) {
+            this.memory.setAtAddress(i, memory[i]);
+        }
+        this.input = new ArrayList<>();
+        this.pointer = 0;
+        this.halted = false;
+        this.relativeBase = 0;
+    }
+
+    /**
+     * Initialize a new Intcode processor, using the contents of a file as input code.
+     * @param fileName the file to take code from
+     */
+    public IntcodeProcessor(String fileName) {
+        String line = "";
+        try {
+            File data = new File("src/data/" + fileName);
+            Scanner reader = new Scanner(data);
+            while (reader.hasNextLine()) {
+                line = reader.nextLine();
+            }
+        } catch (FileNotFoundException e) {
+        }
+        Long[] memory = Arrays.stream(line.split(",")).map(Long::valueOf).toArray(Long[]::new);
         this.memory = new LargeMemory();
         for (int i = 0; i < memory.length; i++) {
             this.memory.setAtAddress(i, memory[i]);
