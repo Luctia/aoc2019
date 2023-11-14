@@ -2,10 +2,7 @@ package helpers;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Scanner;
-import java.util.Stack;
+import java.util.*;
 
 /**
  * A class mimicking a processor running Intcode.
@@ -16,8 +13,8 @@ public class IntcodeProcessor {
      * Memory of the processor.
      */
     private LargeMemory memory;
-    private ArrayList<Long> output = new ArrayList<>();
-    private ArrayList<Long> input;
+    private List<Long> output = new ArrayList<>();
+    private List<Long> input;
     private long pointer;
     private boolean halted;
     private long relativeBase;
@@ -106,6 +103,15 @@ public class IntcodeProcessor {
      */
     public void addToMemory(ArrayList<Long> newMemory) {
         this.memory.addAll(newMemory);
+    }
+
+    /**
+     * Set memory at index to value.
+     * @param index index to put value
+     * @param value value to put at index
+     */
+    public void setMemoryAt(int index, long value) {
+        this.memory.setAtAddress(index, value);
     }
 
     /**
@@ -223,12 +229,18 @@ public class IntcodeProcessor {
         }
     }
 
-    public ArrayList<Long> getOutput() {
+    public List<Long> getOutput() {
         return output;
     }
 
     public long takeOutput() {
         return this.output.remove(0);
+    }
+
+    public List<Long> takeAllOutput() {
+        List<Long> output = this.output;
+        this.output = new ArrayList<>();
+        return output;
     }
 
     public void setInput(long... input) {
