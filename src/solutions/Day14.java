@@ -5,7 +5,7 @@ import java.io.FileNotFoundException;
 import java.util.*;
 
 public class Day14 {
-    public long part1() {
+    private List<Reaction> getReactions() {
         List<Reaction> reactions = new ArrayList<>();
         try {
             File data = new File("src/data/day14.txt");
@@ -14,11 +14,15 @@ public class Day14 {
                 String line = reader.nextLine();
                 reactions.add(new Reaction(line));
             }
-            return calculateMinimalOre(reactions, new HashMap<>(), "FUEL", 1).amount;
+            return reactions;
         } catch (FileNotFoundException e) {
             System.out.println("Day 14 data file not found.");
         }
-        return -1;
+        return null;
+    }
+
+    public long part1() {
+        return calculateMinimalOre(getReactions(), new HashMap<>(), "FUEL", 1).amount;
     }
 
     /**
@@ -78,6 +82,32 @@ public class Day14 {
             }
         }
         return new ReactionResult(minimum, correspondingLeftovers);
+    }
+
+    public long part2() {
+        long opf = this.part1();
+        long ore = 1000000000000L;
+        Map<String, Long> leftovers = new HashMap<>();
+        List<Reaction> reactions = getReactions();
+        // We know that the unoptimized ore-per-fuel equals 178154. Thus, we can calculate a minimum that should
+        //  definitely be doable.
+        long minimum = Math.ceilDiv(ore, opf);
+        assert reactions != null;
+        ReactionResult result = calculateMinimalOre(reactions, leftovers, "FUEL", minimum);
+        leftovers = result.leftovers;
+        ore = ore - result.amount;
+        long fuel = minimum;
+        while (ore > 0) {
+            if (ore - calculateMinimalOre(reactions, leftovers, "FUEL", minimum).amount > 0) {
+                result = calculateMinimalOre(reactions, leftovers, "FUEL", minimum);
+                leftovers = result.leftovers;
+                ore = ore - result.amount;
+                fuel = fuel + minimum;
+            } else {
+                minimum = Math.ceilDiv(minimum, 2);
+            }
+        }
+        return fuel;
     }
 
     private record ReactionResult(long amount, Map<String, Long> leftovers) {
