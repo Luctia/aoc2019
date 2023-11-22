@@ -24,18 +24,25 @@ public class Day13 {
         this.scanner = new Scanner(System.in);
         IntcodeProcessor proc = new IntcodeProcessor("day13.txt");
         proc.setMemoryAt(0, 2);
-        return playGame(proc);
+        return playGame(proc, true);
     }
 
-    public long playGame(IntcodeProcessor proc) {
+    public long playGame(IntcodeProcessor proc, boolean automatic) {
         proc.run();
         BoardPrinter printer = new BoardPrinter(proc.takeAllOutput());
-        while (!proc.hasHalted()) {
-            printer.printBoard();
-//            proc.addInput(takeInput());
-            proc.addInput(printer.makeAutomaticMove());
-            proc.run();
-            printer.updateBoard(proc.takeAllOutput());
+        if (automatic) {
+            while (!proc.hasHalted()) {
+                proc.addInput(printer.makeAutomaticMove());
+                proc.run();
+                printer.updateBoard(proc.takeAllOutput());
+            }
+        } else {
+            while (!proc.hasHalted()) {
+                printer.printBoard();
+                proc.addInput(takeInput());
+                proc.run();
+                printer.updateBoard(proc.takeAllOutput());
+            }
         }
         return printer.getScore();
     }
