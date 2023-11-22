@@ -66,5 +66,6 @@ public class Main {
 
         Day16 day16 = new Day16();
         System.out.println(day16.part1());
+//        System.out.println(day16.part2());
     }
 }

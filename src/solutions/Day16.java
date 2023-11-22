@@ -2,13 +2,31 @@ package solutions;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class Day16 {
     public String part1() {
+        List<Integer> phase = getData();
+        for (int i = 0; i < 100; i++) {
+            phase = getNewPhase(phase);
+        }
+        return phase.stream().map(Object::toString).reduce("", String::concat).substring(0, 8);
+    }
+    public String part2() {
+        List<Integer> phase = getData();
+        int offset = Integer.parseInt(phase.subList(0, 7).stream().map(Objects::toString).reduce("", String::concat));
+        List<Integer> realData = new ArrayList<>();
+        for (int i = 0; i < 10000; i++) {
+            realData.addAll(phase);
+        }
+        for (int i = 0; i < 100; i++) {
+            System.out.println("i is " + i);
+            realData = getNewPhase(realData);
+        }
+        return phase.stream().map(Object::toString).reduce("", String::concat).substring(offset, offset + 8);
+    }
+
+    private static List<Integer> getData() {
         List<Integer> phase = new ArrayList<>();
         try {
             File data = new File("src/data/day16.txt");
@@ -21,20 +39,17 @@ public class Day16 {
             }
         } catch (FileNotFoundException e) {
         }
-        for (int i = 0; i < 100; i++) {
-            phase = getNewPhase(phase);
-        }
-        return phase.stream().map(Object::toString).reduce("", String::concat).substring(0, 8);
+        return phase;
     }
     
     private static List<Integer> getNewPhase(List<Integer> previousPhase) {
         List<Integer> newPhase = new ArrayList<>();
         for (int i = 0; i < previousPhase.size(); i++) {
-            int result = 0;
+            long result = 0;
             for (int j = 0; j < previousPhase.size(); j++) {
                 int element = previousPhase.get(j);
                 int patternMultiplier = getPatternMultiplier(i, j);
-                result += element * patternMultiplier;
+                result += (long) element * patternMultiplier;
             }
             newPhase.add(Math.floorMod(Math.abs(result), 10));
         }
