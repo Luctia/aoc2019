@@ -44,11 +44,12 @@ public class Day16 {
     
     private static List<Integer> getNewPhase(List<Integer> previousPhase) {
         List<Integer> newPhase = new ArrayList<>();
-        for (int i = 0; i < previousPhase.size(); i++) {
+        for (int position = 0; position < previousPhase.size(); position++) {
+//            System.out.println("===position = " + position + "===");
             long result = 0;
-            for (int j = 0; j < previousPhase.size(); j++) {
-                int element = previousPhase.get(j);
-                int patternMultiplier = getPatternMultiplier(i, j);
+            for (int index = position; index < previousPhase.size(); index++) {
+                int element = previousPhase.get(index);
+                int patternMultiplier = getPatternMultiplier(position, index);
                 result += (long) element * patternMultiplier;
             }
             newPhase.add(Math.floorMod(Math.abs(result), 10));
@@ -63,14 +64,14 @@ public class Day16 {
      * @return the multiplier
      */
     private static int getPatternMultiplier(int position, int index) {
-        if (index < position) {
-            return 0;
+        int patternLength = 4 * (position + 1);
+        int adjustedIndex = Math.floorMod(index, patternLength) + 1;
+        if (adjustedIndex >= (position + 1) * 3 && adjustedIndex < (position + 1) * 4) {
+            return -1;
         }
-        int[] pattern = new int[4 * (position + 1)];
-        Arrays.fill(pattern, 0);
-        Arrays.fill(pattern, (position + 1), (position + 1) * 2, 1);
-        Arrays.fill(pattern, (position + 1) * 3, (position + 1) * 4, -1);
-        pattern = Arrays.copyOfRange(pattern, 1, pattern.length + 1);
-        return pattern[Math.floorMod(index, pattern.length)];
+        if (adjustedIndex >= (position + 1) && adjustedIndex < (position + 1) * 2) {
+            return 1;
+        }
+        return 0;
     }
 }
