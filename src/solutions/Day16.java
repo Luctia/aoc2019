@@ -10,7 +10,13 @@ public class Day16 {
         for (int i = 0; i < 100; i++) {
             phase = getNewPhase(phase);
         }
-        return phase.stream().map(Object::toString).reduce("", String::concat).substring(0, 8);
+        long startTime = System.nanoTime();
+        String res = phase.stream().map(Object::toString).reduce("", String::concat).substring(0, 8);
+        long endTime = System.nanoTime();
+
+        long duration = (endTime - startTime);
+        System.out.println("Part 1 took " + duration + "ns");
+        return res;
     }
     public String part2() {
         List<Integer> phase = getData();
@@ -19,11 +25,17 @@ public class Day16 {
         for (int i = 0; i < 10000; i++) {
             realData.addAll(phase);
         }
+        int sizeBefore = realData.size();
+        realData = realData.subList(offset, realData.size());
+        assert sizeBefore == realData.size() + offset;
         for (int i = 0; i < 100; i++) {
-            System.out.println("i is " + i);
-            realData = getNewPhase(realData);
+            int cumulative_sum = 0;
+            for (int j = realData.size() - 1; j > -1; j--) {
+                cumulative_sum += realData.get(j);
+                realData.set(j, Math.floorMod(cumulative_sum, 10));
+            }
         }
-        return phase.stream().map(Object::toString).reduce("", String::concat).substring(offset, offset + 8);
+        return realData.subList(0, 8).stream().map(Object::toString).reduce("", String::concat);
     }
 
     private static List<Integer> getData() {
@@ -45,7 +57,6 @@ public class Day16 {
     private static List<Integer> getNewPhase(List<Integer> previousPhase) {
         List<Integer> newPhase = new ArrayList<>();
         for (int position = 0; position < previousPhase.size(); position++) {
-//            System.out.println("===position = " + position + "===");
             long result = 0;
             for (int index = position; index < previousPhase.size(); index++) {
                 int element = previousPhase.get(index);
