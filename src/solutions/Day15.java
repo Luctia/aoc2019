@@ -6,22 +6,45 @@ import java.util.*;
 
 public class Day15 {
     private Scanner scanner;
-    private int lastMoveMade;
+    private final static boolean PLAY_MANUALLY = false;
 
     public long part1() {
-        this.scanner = new Scanner(System.in);
+        if (PLAY_MANUALLY) {
+            return playManually();
+        } else {
+            return playOnAuto();
+        }
+    }
+
+    public long part2() {
+        Map<Tile, Long> map = discoverMapAutomatically();
+        List<Tile> hallways = map.keySet().stream().filter(t -> map.get(t) == 1).toList();
+        Tile oxygenLocation = new Tile(0, 0);
+        for (Tile tile : map.keySet()) {
+            if (map.get(tile) == 2) {
+                oxygenLocation = tile;
+                break;
+            }
+        }
+        int maxDistance = 0;
+        for (Tile tile : hallways) {
+            int distance = minimumSteps(map, tile, oxygenLocation, tile);
+            if (distance > maxDistance) {
+                maxDistance = distance;
+            }
+        }
+        return maxDistance;
+    }
+
+    private Map<Tile, Long> discoverMapAutomatically() {
         IntcodeProcessor proc = new IntcodeProcessor("day15.txt");
         long out = -1;
         Map<Tile, Long> surroundings = new HashMap<>();
         Tile current = new Tile(0, 0);
-        Tile goTo = new Tile(0, 0);
+        Tile goTo;
         surroundings.put(current, 1L);
-        Tile previous = new Tile(1, 0);
-        while (out != 2) {
-//            printSurroundings(surroundings, current);
-//            int move = determineAutomaticMove(surroundings, current, previous);
+        while (!wholeMapDiscovered(surroundings)) {
             int move = randomMouseAlgorithm();
-//            int move = takeInput();
             goTo = switch (move) {
                 case 1 -> new Tile(current.x, current.y - 1);
                 case 2 -> new Tile(current.x, current.y + 1);
@@ -37,11 +60,74 @@ public class Day15 {
                 surroundings.put(goTo, 0L);
             } else {
                 current = goTo;
-                previous = current;
+                surroundings.put(current, out);
+            }
+        }
+        return surroundings;
+    }
+
+    /**
+     * Automatically discover the maze.
+     * @return
+     */
+    private long playOnAuto() {
+        Map<Tile, Long> map = discoverMapAutomatically();
+        Tile oxygenLocation = new Tile(0, 0);
+        for (Tile tile : map.keySet()) {
+            if (map.get(tile) == 2) {
+                oxygenLocation = tile;
+            }
+        }
+        return minimumSteps(map, new Tile(0, 0), oxygenLocation, new Tile(0, 0));
+    }
+
+    private long playManually() {
+        this.scanner = new Scanner(System.in);
+        IntcodeProcessor proc = new IntcodeProcessor("day15.txt");
+        long out = -1;
+        Map<Tile, Long> surroundings = new HashMap<>();
+        Tile current = new Tile(0, 0);
+        Tile goTo;
+        surroundings.put(current, 1L);
+        while (out != 2) {
+            printSurroundings(surroundings, current);
+            int move = takeInput();
+            goTo = switch (move) {
+                case 1 -> new Tile(current.x, current.y - 1);
+                case 2 -> new Tile(current.x, current.y + 1);
+                case 3 -> new Tile(current.x - 1, current.y);
+                case 4 -> new Tile(current.x + 1, current.y);
+                default -> current;
+            };
+            proc.addInput(move);
+            proc.run();
+            out = proc.takeOutput();
+            if (out == 0) {
+                // hit a wall
+                surroundings.put(goTo, 0L);
+            } else {
+                current = goTo;
                 surroundings.put(current, out);
             }
         }
         return minimumSteps(surroundings, new Tile(0, 0), current, new Tile(0, 0));
+    }
+
+    private boolean wholeMapDiscovered(Map<Tile, Long> map) {
+        // First, get all hallways
+        List<Tile> hallwayTiles = map.keySet().stream().filter(t -> map.get(t) == 1).toList();
+        // Verify that all hallway are surrounded by discovered tiles
+        for (Tile tile : hallwayTiles) {
+            if (
+                    !map.containsKey(new Tile(tile.x - 1, tile.y)) ||
+                    !map.containsKey(new Tile(tile.x + 1, tile.y)) ||
+                    !map.containsKey(new Tile(tile.x, tile.y - 1)) ||
+                    !map.containsKey(new Tile(tile.x, tile.y + 1))
+            ) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private int minimumSteps(Map<Tile, Long> surroundings, Tile from, Tile to, Tile previousPosition) {
