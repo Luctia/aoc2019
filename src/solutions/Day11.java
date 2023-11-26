@@ -1,27 +1,13 @@
 package solutions;
 
+import helpers.Coordinates;
 import helpers.IntcodeProcessor;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.*;
 
 public class Day11 {
-    private Long[] readInput() {
-        String line = "";
-        try {
-            File data = new File("src/data/day11.txt");
-            Scanner reader = new Scanner(data);
-            while (reader.hasNextLine()) {
-                line = reader.nextLine();
-            }
-        } catch (FileNotFoundException e) {
-        }
-        return Arrays.stream(line.split(",")).map(Long::valueOf).toArray(Long[]::new);
-    }
-
     public int part1() {
-        IntcodeProcessor proc = new IntcodeProcessor(readInput());
+        IntcodeProcessor proc = new IntcodeProcessor("day11.txt");
         Map<Coordinates, Long> paintedTiles = new HashMap<>();
         Coordinates currentLocation = new Coordinates(0, 0);
         // 0 = Up, 1 = Right, 2 = Down, 3 = Left
@@ -42,7 +28,7 @@ public class Day11 {
     }
 
     public String part2() {
-        IntcodeProcessor proc = new IntcodeProcessor(readInput());
+        IntcodeProcessor proc = new IntcodeProcessor("day11.txt");
         Map<Coordinates, Long> paintedTiles = new HashMap<>();
         Coordinates currentLocation = new Coordinates(0, 0);
         paintedTiles.put(currentLocation, 1L);
@@ -78,7 +64,6 @@ public class Day11 {
                 rightmost = c.y;
             }
         }
-        int width = rightmost - leftmost;
         StringBuilder output = new StringBuilder();
         while (row != max + 1) {
             StringBuilder line = new StringBuilder();
@@ -99,32 +84,5 @@ public class Day11 {
             case 3 -> new Coordinates(currentLocation.x - 1, currentLocation.y);
             default -> new Coordinates(0, 0);
         };
-    }
-
-    private class Coordinates {
-        public int x, y;
-
-        public Coordinates(int x, int y) {
-            this.x = x;
-            this.y = y;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            Coordinates that = (Coordinates) o;
-            return x == that.x && y == that.y;
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(x, y);
-        }
-
-        @Override
-        public String toString() {
-            return this.x + ", " + this.y;
-        }
     }
 }

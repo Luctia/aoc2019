@@ -1,5 +1,6 @@
 package solutions;
 
+import helpers.Coordinates;
 import helpers.IntcodeProcessor;
 
 import java.util.*;
@@ -17,17 +18,17 @@ public class Day15 {
     }
 
     public long part2() {
-        Map<Tile, Long> map = discoverMapAutomatically();
-        List<Tile> hallways = map.keySet().stream().filter(t -> map.get(t) == 1).toList();
-        Tile oxygenLocation = new Tile(0, 0);
-        for (Tile tile : map.keySet()) {
+        Map<Coordinates, Long> map = discoverMapAutomatically();
+        List<Coordinates> hallways = map.keySet().stream().filter(t -> map.get(t) == 1).toList();
+        Coordinates oxygenLocation = new Coordinates(0, 0);
+        for (Coordinates tile : map.keySet()) {
             if (map.get(tile) == 2) {
                 oxygenLocation = tile;
                 break;
             }
         }
         int maxDistance = 0;
-        for (Tile tile : hallways) {
+        for (Coordinates tile : hallways) {
             int distance = minimumSteps(map, tile, oxygenLocation, tile);
             if (distance > maxDistance) {
                 maxDistance = distance;
@@ -36,20 +37,20 @@ public class Day15 {
         return maxDistance;
     }
 
-    private Map<Tile, Long> discoverMapAutomatically() {
+    private Map<Coordinates, Long> discoverMapAutomatically() {
         IntcodeProcessor proc = new IntcodeProcessor("day15.txt");
         long out = -1;
-        Map<Tile, Long> surroundings = new HashMap<>();
-        Tile current = new Tile(0, 0);
-        Tile goTo;
+        Map<Coordinates, Long> surroundings = new HashMap<>();
+        Coordinates current = new Coordinates(0, 0);
+        Coordinates goTo;
         surroundings.put(current, 1L);
         while (!wholeMapDiscovered(surroundings)) {
             int move = randomMouseAlgorithm();
             goTo = switch (move) {
-                case 1 -> new Tile(current.x, current.y - 1);
-                case 2 -> new Tile(current.x, current.y + 1);
-                case 3 -> new Tile(current.x - 1, current.y);
-                case 4 -> new Tile(current.x + 1, current.y);
+                case 1 -> new Coordinates(current.x, current.y - 1);
+                case 2 -> new Coordinates(current.x, current.y + 1);
+                case 3 -> new Coordinates(current.x - 1, current.y);
+                case 4 -> new Coordinates(current.x + 1, current.y);
                 default -> current;
             };
             proc.addInput(move);
@@ -71,32 +72,32 @@ public class Day15 {
      * @return
      */
     private long playOnAuto() {
-        Map<Tile, Long> map = discoverMapAutomatically();
-        Tile oxygenLocation = new Tile(0, 0);
-        for (Tile tile : map.keySet()) {
+        Map<Coordinates, Long> map = discoverMapAutomatically();
+        Coordinates oxygenLocation = new Coordinates(0, 0);
+        for (Coordinates tile : map.keySet()) {
             if (map.get(tile) == 2) {
                 oxygenLocation = tile;
             }
         }
-        return minimumSteps(map, new Tile(0, 0), oxygenLocation, new Tile(0, 0));
+        return minimumSteps(map, new Coordinates(0, 0), oxygenLocation, new Coordinates(0, 0));
     }
 
     private long playManually() {
         this.scanner = new Scanner(System.in);
         IntcodeProcessor proc = new IntcodeProcessor("day15.txt");
         long out = -1;
-        Map<Tile, Long> surroundings = new HashMap<>();
-        Tile current = new Tile(0, 0);
-        Tile goTo;
+        Map<Coordinates, Long> surroundings = new HashMap<>();
+        Coordinates current = new Coordinates(0, 0);
+        Coordinates goTo;
         surroundings.put(current, 1L);
         while (out != 2) {
             printSurroundings(surroundings, current);
             int move = takeInput();
             goTo = switch (move) {
-                case 1 -> new Tile(current.x, current.y - 1);
-                case 2 -> new Tile(current.x, current.y + 1);
-                case 3 -> new Tile(current.x - 1, current.y);
-                case 4 -> new Tile(current.x + 1, current.y);
+                case 1 -> new Coordinates(current.x, current.y - 1);
+                case 2 -> new Coordinates(current.x, current.y + 1);
+                case 3 -> new Coordinates(current.x - 1, current.y);
+                case 4 -> new Coordinates(current.x + 1, current.y);
                 default -> current;
             };
             proc.addInput(move);
@@ -110,19 +111,19 @@ public class Day15 {
                 surroundings.put(current, out);
             }
         }
-        return minimumSteps(surroundings, new Tile(0, 0), current, new Tile(0, 0));
+        return minimumSteps(surroundings, new Coordinates(0, 0), current, new Coordinates(0, 0));
     }
 
-    private boolean wholeMapDiscovered(Map<Tile, Long> map) {
+    private boolean wholeMapDiscovered(Map<Coordinates, Long> map) {
         // First, get all hallways
-        List<Tile> hallwayTiles = map.keySet().stream().filter(t -> map.get(t) == 1).toList();
+        List<Coordinates> hallwayTiles = map.keySet().stream().filter(t -> map.get(t) == 1).toList();
         // Verify that all hallway are surrounded by discovered tiles
-        for (Tile tile : hallwayTiles) {
+        for (Coordinates tile : hallwayTiles) {
             if (
-                    !map.containsKey(new Tile(tile.x - 1, tile.y)) ||
-                    !map.containsKey(new Tile(tile.x + 1, tile.y)) ||
-                    !map.containsKey(new Tile(tile.x, tile.y - 1)) ||
-                    !map.containsKey(new Tile(tile.x, tile.y + 1))
+                    !map.containsKey(new Coordinates(tile.x - 1, tile.y)) ||
+                    !map.containsKey(new Coordinates(tile.x + 1, tile.y)) ||
+                    !map.containsKey(new Coordinates(tile.x, tile.y - 1)) ||
+                    !map.containsKey(new Coordinates(tile.x, tile.y + 1))
             ) {
                 return false;
             }
@@ -130,17 +131,17 @@ public class Day15 {
         return true;
     }
 
-    private int minimumSteps(Map<Tile, Long> surroundings, Tile from, Tile to, Tile previousPosition) {
+    private int minimumSteps(Map<Coordinates, Long> surroundings, Coordinates from, Coordinates to, Coordinates previousPosition) {
         if (from.equals(to)) {
             return 0;
         }
-        List<Tile> possibleNexts = new ArrayList<>();
-        List<Tile> next = new ArrayList<>();
-        possibleNexts.add(new Tile(from.x, from.y - 1));
-        possibleNexts.add(new Tile(from.x, from.y + 1));
-        possibleNexts.add(new Tile(from.x - 1, from.y));
-        possibleNexts.add(new Tile(from.x + 1, from.y));
-        for (Tile tile : possibleNexts) {
+        List<Coordinates> possibleNexts = new ArrayList<>();
+        List<Coordinates> next = new ArrayList<>();
+        possibleNexts.add(new Coordinates(from.x, from.y - 1));
+        possibleNexts.add(new Coordinates(from.x, from.y + 1));
+        possibleNexts.add(new Coordinates(from.x - 1, from.y));
+        possibleNexts.add(new Coordinates(from.x + 1, from.y));
+        for (Coordinates tile : possibleNexts) {
             if (surroundings.containsKey(tile)) {
                 if (surroundings.getOrDefault(tile, 1L) == 2) {
                     return 1;
@@ -156,7 +157,7 @@ public class Day15 {
             return surroundings.size();
         }
         int minimum = surroundings.size();
-        for (Tile nextTile : next) {
+        for (Coordinates nextTile : next) {
             int distance = minimumSteps(surroundings, nextTile, to, from);
             if (distance < minimum) {
                 minimum = distance;
@@ -170,12 +171,12 @@ public class Day15 {
         return direction;
     }
 
-    private int determineAutomaticMove(Map<Tile, Long> surroundings, Tile current, Tile previous) {
-        Map<Tile, Long> options = new HashMap<>();
-        options.put(new Tile(current.x, current.y - 1), null);
-        options.put(new Tile(current.x, current.y + 1), null);
-        options.put(new Tile(current.x - 1, current.y), null);
-        options.put(new Tile(current.x + 1, current.y), null);
+    private int determineAutomaticMove(Map<Coordinates, Long> surroundings, Coordinates current, Coordinates previous) {
+        Map<Coordinates, Long> options = new HashMap<>();
+        options.put(new Coordinates(current.x, current.y - 1), null);
+        options.put(new Coordinates(current.x, current.y + 1), null);
+        options.put(new Coordinates(current.x - 1, current.y), null);
+        options.put(new Coordinates(current.x + 1, current.y), null);
         options.remove(previous);
         options.replaceAll((o, v) -> surroundings.getOrDefault(o, null));
         return 1;
@@ -197,12 +198,12 @@ public class Day15 {
         };
     }
 
-    private void printSurroundings(Map<Tile, Long> surroundings, Tile current) {
-        long minX = current.x;
-        long minY = current.y;
-        long maxX = current.x;
-        long maxY = current.y;
-        for (Tile tile : surroundings.keySet()) {
+    private void printSurroundings(Map<Coordinates, Long> surroundings, Coordinates current) {
+        int minX = current.x;
+        int minY = current.y;
+        int maxX = current.x;
+        int maxY = current.y;
+        for (Coordinates tile : surroundings.keySet()) {
             if (tile.x < minX) {
                 minX = tile.x;
             }
@@ -217,14 +218,14 @@ public class Day15 {
             }
         }
         StringBuilder output = new StringBuilder();
-        for (long y = minY; y <= maxY; y++) {
-            for (long x = minX; x <= maxX; x++) {
+        for (int y = minY; y <= maxY; y++) {
+            for (int x = minX; x <= maxX; x++) {
                 if (x == 0 && y == 0) {
                     output.append("X");
-                } else if (current.equals(new Tile(x, y))) {
+                } else if (current.equals(new Coordinates(x, y))) {
                     output.append("D");
                 } else {
-                    long content = surroundings.getOrDefault(new Tile(x, y), 3L);
+                    long content = surroundings.getOrDefault(new Coordinates(x, y), 3L);
                     output.append(
                             switch ((int) content) {
                                 case 0 -> "#";
@@ -237,25 +238,5 @@ public class Day15 {
             output.append("\n");
         }
         System.out.println(output);
-    }
-
-    private record Tile(long x, long y) {
-        public Tile(long x, long y) {
-            this.x = x;
-            this.y = y;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            Tile tile = (Tile) o;
-            return x == tile.x && y == tile.y;
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(x, y);
-        }
     }
 }

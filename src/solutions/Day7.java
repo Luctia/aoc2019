@@ -3,25 +3,9 @@ package solutions;
 import helpers.Helperfunctions;
 import helpers.IntcodeProcessor;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Scanner;
 
 public class Day7 {
-    private Integer[] getCode() {
-        try {
-            File inputFile = new File("src/data/day7.txt");
-            Scanner reader = new Scanner(inputFile);
-            String code = reader.nextLine();
-            return Arrays.stream(code.split(",")).mapToInt(Integer::parseInt).boxed().toArray(Integer[]::new);
-        } catch (FileNotFoundException e) {
-            System.out.println("Day6 data file not found.");
-        }
-        return null;
-    }
-
     public long part1() {
         long max = 0;
         ArrayList<Integer> x = new ArrayList<Integer>() {
@@ -35,11 +19,11 @@ public class Day7 {
         };
         ArrayList<ArrayList<Integer>> possibilities = Helperfunctions.combinationUtil(x);
         for (ArrayList<Integer> possibility : possibilities) {
-            IntcodeProcessor ampa = new IntcodeProcessor(getCode());
-            IntcodeProcessor ampb = new IntcodeProcessor(getCode());
-            IntcodeProcessor ampc = new IntcodeProcessor(getCode());
-            IntcodeProcessor ampd = new IntcodeProcessor(getCode());
-            IntcodeProcessor ampe = new IntcodeProcessor(getCode());
+            IntcodeProcessor ampa = new IntcodeProcessor("day7.txt");
+            IntcodeProcessor ampb = new IntcodeProcessor("day7.txt");
+            IntcodeProcessor ampc = new IntcodeProcessor("day7.txt");
+            IntcodeProcessor ampd = new IntcodeProcessor("day7.txt");
+            IntcodeProcessor ampe = new IntcodeProcessor("day7.txt");
             ampa.setInput(possibility.get(0), 0);
             ampa.run();
             ampb.setInput(possibility.get(1), ampa.getOutput().get(0));
@@ -70,11 +54,11 @@ public class Day7 {
         };
         ArrayList<ArrayList<Integer>> possibilities = Helperfunctions.combinationUtil(x);
         for (ArrayList<Integer> possibility : possibilities) {
-            IntcodeProcessor ampa = new IntcodeProcessor(getCode());
-            IntcodeProcessor ampb = new IntcodeProcessor(getCode());
-            IntcodeProcessor ampc = new IntcodeProcessor(getCode());
-            IntcodeProcessor ampd = new IntcodeProcessor(getCode());
-            IntcodeProcessor ampe = new IntcodeProcessor(getCode());
+            IntcodeProcessor ampa = new IntcodeProcessor("day7.txt");
+            IntcodeProcessor ampb = new IntcodeProcessor("day7.txt");
+            IntcodeProcessor ampc = new IntcodeProcessor("day7.txt");
+            IntcodeProcessor ampd = new IntcodeProcessor("day7.txt");
+            IntcodeProcessor ampe = new IntcodeProcessor("day7.txt");
             ampa.setInput(possibility.get(0), 0);
             ampb.setInput(possibility.get(1));
             ampc.setInput(possibility.get(2));

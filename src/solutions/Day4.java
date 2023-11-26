@@ -7,7 +7,7 @@ public class Day4 {
         System.out.println(new Password(172930, 683082).getValidPasswords().size());
     }
 
-    protected static class Password {
+    private static class Password {
         int start;
         int max;
 

@@ -1,5 +1,7 @@
 package solutions;
 
+import helpers.Coordinates;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.math.BigDecimal;
@@ -15,23 +17,23 @@ public class Day10 {
     public double part2() {
         AsteroidField asteroidField = getAsteroidField();
         // Vantage point is 29, 28
-        Asteroid vantagePoint = new Asteroid(29, 28);
-        Map<Asteroid, Double> angles = new HashMap<>();
-        Set<Asteroid> asteroids = asteroidField.asteroids;
+        Coordinates vantagePoint = new Coordinates(29, 28);
+        Map<Coordinates, Double> angles = new HashMap<>();
+        Set<Coordinates> asteroids = asteroidField.asteroids;
         asteroids.remove(vantagePoint);
-        for (Asteroid asteroid : asteroids) {
+        for (Coordinates asteroid : asteroids) {
             int divisor = AsteroidField.gcd(asteroid.x, asteroid.y);
             angles.put(
                     asteroid,
                     BigDecimal.valueOf(Math.atan2((double) (asteroid.y - vantagePoint.y) / divisor, (double) (asteroid.x - vantagePoint.x) / divisor)).setScale(10, RoundingMode.HALF_UP).doubleValue()
             );
         }
-        Map<Asteroid, Double> sortedByAngle = angles.entrySet()
+        Map<Coordinates, Double> sortedByAngle = angles.entrySet()
                 .stream()
                 .sorted(Map.Entry.comparingByValue())
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1 , LinkedHashMap::new));
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
         double currentAngle = BigDecimal.valueOf(-Math.PI / 2).setScale(10, RoundingMode.HALF_UP).doubleValue();
-        List<Asteroid> sortedAsteroids = new ArrayList<>(sortedByAngle.keySet().stream().toList());
+        List<Coordinates> sortedAsteroids = new ArrayList<>(sortedByAngle.keySet().stream().toList());
         List<Double> sortedAngles = new ArrayList<>(sortedByAngle.values().stream().toList());
         int index = sortedAngles.indexOf(currentAngle);
         for (int i = 0; i < 199; i++) {
@@ -40,10 +42,10 @@ public class Day10 {
             boolean multipleInLine = sortedAngles.stream().filter(a -> a.equals(finalCurrentAngle)).count() > 1;
             if (multipleInLine) {
                 // Select the closest one
-                Asteroid closestCandidate = sortedAsteroids.get(index);
+                Coordinates closestCandidate = sortedAsteroids.get(index);
                 for (int j = 0; j < sortedAngles.size(); j++) {
                     if (sortedAngles.get(Math.floorMod(index + j, sortedAngles.size())) == finalCurrentAngle) {
-                        Asteroid candidate = sortedAsteroids.get(index + j);
+                        Coordinates candidate = sortedAsteroids.get(index + j);
                         double candidateMan = candidate.manhattanDistance(vantagePoint);
                         double currentMan = closestCandidate.manhattanDistance(vantagePoint);
                         if (candidateMan < currentMan) {
@@ -93,7 +95,7 @@ public class Day10 {
     }
 
     private static class AsteroidField {
-        private final Set<Asteroid> asteroids;
+        private final Set<Coordinates> asteroids;
         private final int width;
         private final int height;
 
@@ -103,18 +105,18 @@ public class Day10 {
             this.asteroids = new HashSet<>();
             for (int y = 0; y < height; y++) {
                 for (int x = 0; x < width; x++) {
-                    if (chars[y*width + x] == '#') {
-                        this.asteroids.add(new Asteroid(x, y));
+                    if (chars[y * width + x] == '#') {
+                        this.asteroids.add(new Coordinates(x, y));
                     }
                 }
             }
         }
 
-        public void removeAsteroid(Asteroid asteroid) {
+        public void removeAsteroid(Coordinates asteroid) {
             this.asteroids.remove(asteroid);
         }
 
-        public void print(Asteroid vantagePoint, Asteroid destroyed) {
+        public void print(Coordinates vantagePoint, Coordinates destroyed) {
             StringBuilder field = new StringBuilder();
             for (int i = 0; i < height; i++) {
                 for (int j = 0; j < width; j++) {
@@ -133,10 +135,10 @@ public class Day10 {
 
         public int bestVantagePoint() {
             int max = 0;
-            Asteroid best = new Asteroid(0, 0);
-            for (Asteroid viewer : this.asteroids) {
+            Coordinates best = new Coordinates(0, 0);
+            for (Coordinates viewer : this.asteroids) {
                 int viewed = 0;
-                for (Asteroid viewee : this.asteroids) {
+                for (Coordinates viewee : this.asteroids) {
                     if (!isBlockedFrom(viewee, viewer)) {
                         viewed++;
                     }
@@ -150,7 +152,7 @@ public class Day10 {
             return max;
         }
 
-        public boolean isBlockedFrom(Asteroid viewed, Asteroid viewpoint) {
+        public boolean isBlockedFrom(Coordinates viewed, Coordinates viewpoint) {
             if (viewed.equals(viewpoint)) {
                 // The asteroid itself doesn't count
                 return true;
@@ -188,32 +190,8 @@ public class Day10 {
         }
 
         private static int gcd(int a, int b) {
-            if (b==0) return a;
-            return gcd(b,a%b);
+            if (b == 0) return a;
+            return gcd(b, a % b);
         }
-    }
-
-    private record Asteroid(int x, int y) {
-
-        public double manhattanDistance(Asteroid from) {
-                double x = Math.pow(this.x - from.x, 2);
-                double y = Math.pow(this.y - from.y, 2);
-                return Math.sqrt(x + y);
-            }
-
-            @Override
-            public boolean equals(Object obj) {
-                if (!(obj instanceof Asteroid assumed)) {
-                    return false;
-                }
-
-                return assumed.x == this.x && assumed.y == this.y;
-            }
-
-            @Override
-            public String toString() {
-                return this.x + ", " + this.y;
-            }
-
     }
 }

@@ -10,13 +10,7 @@ public class Day16 {
         for (int i = 0; i < 100; i++) {
             phase = getNewPhase(phase);
         }
-        long startTime = System.nanoTime();
-        String res = phase.stream().map(Object::toString).reduce("", String::concat).substring(0, 8);
-        long endTime = System.nanoTime();
-
-        long duration = (endTime - startTime);
-        System.out.println("Part 1 took " + duration + "ns");
-        return res;
+        return phase.stream().map(Object::toString).reduce("", String::concat).substring(0, 8);
     }
     public String part2() {
         List<Integer> phase = getData();

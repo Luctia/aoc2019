@@ -38,7 +38,7 @@ public class Day3 {
         return res;
     }
 
-    class IntersectionDistanceComparator implements Comparator<Intersection> {
+    private static class IntersectionDistanceComparator implements Comparator<Intersection> {
         @Override
         public int compare(Intersection a, Intersection b) {
             int tota = a.y + a.x;
@@ -47,7 +47,7 @@ public class Day3 {
         }
     }
 
-    class IntersectionWeightComparator implements Comparator<Intersection> {
+    private static class IntersectionWeightComparator implements Comparator<Intersection> {
         @Override
         public int compare(Intersection a, Intersection b) {
             return Integer.compare(a.weight, b.weight);
