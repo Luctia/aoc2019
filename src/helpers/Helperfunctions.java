@@ -72,4 +72,12 @@ public class Helperfunctions {
         }
         return res;
     }
+
+    public static long[] reverseArray(long[] array) {
+        long[] res = new long[array.length];
+        for (int i = 0; i < array.length; i++) {
+            res[array.length - 1 - i] = array[i];
+        }
+        return res;
+    }
 }

@@ -74,5 +74,6 @@ public class Main {
 
         Day17 day17 = new Day17();
         System.out.println(day17.part1());
+        System.out.println(day17.part2());
     }
 }

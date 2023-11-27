@@ -254,6 +254,12 @@ public class IntcodeProcessor {
         this.input.add(i);
     }
 
+    public void addInput(long[] i) {
+        for (long l : i) {
+            this.addInput(l);
+        }
+    }
+
     public boolean hasHalted() {
         return this.halted;
     }
